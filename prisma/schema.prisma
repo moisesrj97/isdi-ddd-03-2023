@@ -11,7 +11,7 @@ datasource db {
 }
 
 model UserP {
-  id           Int      @id
+  id           String   @id
   name         String
   surname      String
   email        String
@@ -23,7 +23,7 @@ model UserP {
 }
 
 model TechnicalTestP {
-  id         Int      @id
+  id         String   @id
   studentId  String
   company    String
   uploadDate DateTime

@@ -1,29 +1,34 @@
-class User {
-  constructor(
-    public id: string,
-    public name: string,
-    public surname: string,
-    public email: string,
-    public phone: string,
-    public bootCampYear: number,
-    public campus: 'MAD' | 'BCN' | 'MAL'
-  ) {}
-}
+import { PrismaClient } from '@prisma/client';
+import ExpressServer from './server/infrastructure/ExpressServer';
+import UserRouter from './server/infrastructure/Routers/UserRouter';
+import UserCreator from './user/application/UserCreator';
+import UserDeleter from './user/application/UserDeleter';
+import UserFinder from './user/application/UserFinder';
+import UserSearcher from './user/application/UserSeacher';
+import UserUpdater from './user/application/UserUpdater';
+import UserPrismaRepository from './user/infrastructure/UserPrismaRepository';
 
-class TechnicalTest {
-  constructor(
-    public id: string,
-    public studentId: string,
-    public company: string,
-    public uploadDate: Date,
-    public role:
-      | 'Frontend'
-      | 'Backend'
-      | 'Fullstack'
-      | 'Mobile'
-      | 'UX/UI'
-      | 'DevOps'
-  ) {}
-}
+const bootstrap = async () => {
+  const prisma = new PrismaClient();
+  const repository = new UserPrismaRepository(prisma);
 
-console.log('Hello World');
+  const userSearcher = new UserSearcher(repository);
+  const userFinder = new UserFinder(repository);
+  const userCreator = new UserCreator(repository);
+  const userUpdater = new UserUpdater(repository);
+  const userDeleter = new UserDeleter(repository);
+
+  const userRouter = new UserRouter(
+    userSearcher,
+    userFinder,
+    userCreator,
+    userUpdater,
+    userDeleter
+  );
+
+  const server = new ExpressServer([userRouter]);
+
+  server.start(3000);
+};
+
+bootstrap();
